@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Route, Switch } from 'react-router-dom';
 import './ProblemPage.css';
-import SelectionPage from './SelectionPage';
+import SelectionPage from './SelectionProblem/SelectionPage';
 import CreationPage from './CreateProblem/CreationPage';
 
 function ProblemPage() {
