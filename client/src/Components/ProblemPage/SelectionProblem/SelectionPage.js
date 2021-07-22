@@ -5,16 +5,42 @@ import SelectedProblemList from './SelectedProblemList';
 const pickedreducer = (state, action) => {
   const [unsolvedProblems, solvedProblems] = state;
   switch (action.type) {
-    case 'unsolved': {
+    case 'getUnsolved': {
       return [
         unsolvedProblems.filter(problem => !problem.solve),
         solvedProblems
       ];
     }
-    case 'solved': {
+    case 'getSolved': {
       return [
         unsolvedProblems,
         solvedProblems.filter(problem => problem.solve)
+      ];
+    }
+    case 'deleteUnsolved': {
+      return [
+        unsolvedProblems.filter(problem => problem.no !== action.no),
+        solvedProblems
+      ];
+    }
+    case 'deleteSolved': {
+      return [
+        unsolvedProblems,
+        solvedProblems.filter(problem => problem.no !== action.no)
+      ];
+    }
+    case 'changeUnsolved': {
+      return [
+        unsolvedProblems.filter(problem => problem.no !== action.problem.no),
+        // [...solvedProblems, action.problem]
+        solvedProblems.concat(action.problem)
+      ];
+    }
+    case 'changeSolved': {
+      return [
+        // [...unsolvedProblems, action.problem],
+        unsolvedProblems.concat(action.problem),
+        solvedProblems.filter(problem => problem.no !== action.problem.no)
       ];
     }
     default: {
@@ -25,7 +51,6 @@ const pickedreducer = (state, action) => {
 
 function SelectionPage() {
   //추후 ContextAPI 도입
-  const [selectedProblems, setSelectedProblems] = useState(testCode);
   const [problems, dispatch] = useReducer(pickedreducer, [
     [undefined],
     [undefined]
@@ -41,7 +66,7 @@ function SelectionPage() {
     if (unsolvedProblems[0] === undefined) {
       unsolvedProblems.pop();
       unsolvedProblems.push(...testCode);
-      dispatch({ type: 'unsolved' });
+      dispatch({ type: 'getUnsolved' });
     }
 
     chageButton(true);
@@ -51,10 +76,31 @@ function SelectionPage() {
     if (solvedProblems[0] === undefined) {
       solvedProblems.pop();
       solvedProblems.push(...testCode);
-      dispatch({ type: 'solved' });
+      dispatch({ type: 'getSolved' });
     }
 
     chageButton(false);
+  };
+
+  const removeProblem = no => {
+    if (clickedButton) {
+      dispatch({ type: 'deleteUnsolved', no });
+      return;
+    }
+
+    dispatch({ type: 'deleteSolved', no });
+  };
+
+  //만약에 풀지못한문제와 완료한 문제를 한번씩 렌더링을 안하면 change는 넘어가지만 오류남
+  //이 부분은 백엔드 연동하면서 고민해볼것..!
+  const changeProblem = problem => {
+    problem.solve = !problem.solve;
+    if (clickedButton) {
+      dispatch({ type: 'changeUnsolved', problem });
+      return;
+    }
+
+    dispatch({ type: 'changeSolved', problem });
   };
 
   if (clickedButton == null) {
@@ -64,7 +110,7 @@ function SelectionPage() {
           pickSolvedProblems={pickSolvedProblems}
           pickUnsolvedProblems={pickUnsolvedProblems}
         />
-        {clickedButton == null && <div>버튼을 눌러주세요</div>}
+        <div>버튼을 눌러주세요</div>
       </>
     );
   }
@@ -76,9 +122,17 @@ function SelectionPage() {
         pickUnsolvedProblems={pickUnsolvedProblems}
       />
       {clickedButton ? (
-        <SelectedProblemList selectedProblems={unsolvedProblems} />
+        <SelectedProblemList
+          selectedProblems={unsolvedProblems}
+          removeProblem={removeProblem}
+          changeProblem={changeProblem}
+        />
       ) : (
-        <SelectedProblemList selectedProblems={solvedProblems} />
+        <SelectedProblemList
+          selectedProblems={solvedProblems}
+          removeProblem={removeProblem}
+          changeProblem={changeProblem}
+        />
       )}
     </>
   );
