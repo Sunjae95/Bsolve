@@ -6,34 +6,21 @@ import { LOGIN, LOGOUT } from '../../Context/actionType';
 import axios from 'axios';
 
 function PrivateRoute({ component: Component, ...rest }) {
-  //Context API isLogged: 로그인상태 / dispatch: 로그인 상태바꿔주는 함수
-  const { isLogged, dispatch } = useContext(isLoggedContext);
+  const { userInfo, dispatch } = useContext(isLoggedContext);
+  // useEffect(() => {
 
-  useEffect(() => {
-    //유저 현재 유저 불러오기
-    axios({
-      url: `${API_ENDPOINT}/login/checkLogin`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: { user: localStorage.getItem('user') },
-      withCredentials: true
-    })
-      .then(res => {
-        dispatch({ type: LOGIN });
-      })
-      .catch(e => {
-        dispatch({ type: LOGOUT });
-      });
-  }, []);
-
+  // }, [userInfo.isLogged]);
   //로그인 유무에 따른 조건부 렌더링
   return (
     <Route
       {...rest}
-      render={props =>
-        true ? <Component {...props} /> : <Redirect to="/login" />
+      render={
+        props =>
+          userInfo.isLogged ? (
+            <Component {...props} />
+          ) : (
+            <Redirect to="/login" />
+          )
         // isLogged.isLogged ? <Component {...props} /> : <Redirect to="/login" />
       }
     />

@@ -5,6 +5,7 @@ const {
   getKakaoId,
   getJWT,
   checkUser,
+  getUserProblems,
 } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
@@ -16,7 +17,6 @@ router.get("/", (req, res) => {
 
 router.post("/auth", async (req, res) => {
   const code = req.body.authCode;
-
   const bodyData = {
     grant_type: "authorization_code",
     client_id: process.env.REST_API_KEY,
@@ -24,17 +24,22 @@ router.post("/auth", async (req, res) => {
     code,
   };
 
-  const accessToken = await getAccessToken(process.env.KAKAO_URL, bodyData);
-  const kakaoId = await getKakaoId(accessToken);
-  const jwtToken = await getJWT(kakaoId);
+  try {
+    const accessToken = await getAccessToken(process.env.KAKAO_URL, bodyData);
+    const kakaoId = await getKakaoId(accessToken);
+    const token = await getJWT(kakaoId);
 
-  res.json({ user: jwtToken });
+    res.json({ token });
+  } catch (e) {
+    console.log("에러", e);
+    res.status(404).end();
+  }
 });
-//return을 안해주면 오류가 남
-router.post("/checkLogin", (req, res) => {
-  const isChecked = checkUser(req.body.user, process.env.JWT_SECRET);
-  if (isChecked) return res.json({ isChecked: true });
-  return res.json({ isChecked: true });
+
+router.post("/checkLogin", async (req, res) => {
+  const isLogged = await checkUser(req.body.token);
+  if (isLogged) return res.json({ success: true });
+  res.status(400).end();
 });
 
 module.exports = router;

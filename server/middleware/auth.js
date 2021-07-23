@@ -33,21 +33,6 @@ const getKakaoId = async (accessToken) => {
   return kakaoUser.id;
 };
 
-//JWT토큰 생성
-const getJWT = async (id) => {
-  console.log("사용자id", id);
-  const payload = {
-    id: id,
-    exp: Math.floor(Date.now() / 1000) + 60 * 60,
-  };
-
-  saveUser(id);
-
-  const jwtToken = jwt.sign(payload, process.env.JWT_SECRET);
-  console.log("jwtToken", jwtToken);
-  return jwtToken;
-};
-
 //ID가 없다면 DB에 ID추가
 const saveUser = async (id) => {
   const checkUser = await db.query("SELECT id FROM users WHERE id = ?", [id]);
@@ -57,10 +42,37 @@ const saveUser = async (id) => {
   }
 };
 
-const checkUser = (token, password) => {
-  const isChecked = jwt.verify(token, password);
+const checkUser = (token) => {
+  const isChecked = jwt.verify(token, process.env.JWT_SECRET);
   if (isChecked) return isChecked.id;
   return false;
+};
+
+//JWT토큰 생성
+const getJWT = async (id) => {
+  const payload = {
+    id: id,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60,
+  };
+
+  saveUser(id);
+
+  const jwtToken = jwt.sign(payload, process.env.JWT_SECRET);
+
+  return jwtToken;
+};
+
+const getUserProblems = async (token) => {
+  try {
+    const id = await checkUser(token);
+    const userProblems = await db.query(
+      "SELECT P.no, P.grade, P.title, PU.solve FROM problems_users as PU JOIN problems as P ON PU.myno = P.no WHERE PU.myid = ? ",
+      [id]
+    );
+    return userProblems[0];
+  } catch (e) {
+    return false;
+  }
 };
 
 //jwt토큰 인증하고 id를 통해 현재 유저 정보 불러오기(id, nickname)
@@ -89,10 +101,6 @@ const getAccessTokenFromDB = async (id) => {
 };
 
 const modifyNickname = async (id, nickname, age, gender) => {
-  //  데이터 조회
-  // db.query('UPDATE users SET nickname = ? WHERE id =?', [nickname, id])
-  //   .then(console.log('user수정성공'))
-  //   .catch(err=> console.log('user 수정실패'));
   try {
     const res = await db.query(
       "UPDATE users SET nickname = ?, age= ?, gender = ?  WHERE id =?",
@@ -111,6 +119,7 @@ module.exports = {
   getJWT,
   checkUser,
   curUser,
+  getUserProblems,
   getAccessTokenFromDB,
   modifyNickname,
 };

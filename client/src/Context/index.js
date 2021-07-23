@@ -1,14 +1,19 @@
-import React, { useReducer } from 'react';
+import axios from 'axios';
+import React, { useContext, useEffect, useReducer } from 'react';
+import { API_ENDPOINT } from '../utils/config';
 import { LOGIN, LOGOUT } from './actionType';
 
-const initailState = { isLogged: false };
+const initailState = {
+  isLogged: !!localStorage.getItem('token'),
+  problems: null
+};
 
 const isLoggedContext = React.createContext(initailState);
 
 const reducer = (state, action) => {
   switch (action.type) {
     case LOGIN:
-      return { isLogged: true };
+      return { isLogged: true, problems: action.problems };
     case LOGOUT:
       return { isLogged: false };
     default:
@@ -17,8 +22,27 @@ const reducer = (state, action) => {
 };
 
 const Provider = ({ children }) => {
-  const [isLogged, dispatch] = useReducer(reducer, initailState);
-  const value = { isLogged, dispatch };
+  const [userInfo, dispatch] = useReducer(reducer, initailState);
+  const token = localStorage.getItem('token');
+
+  useEffect(async () => {
+    const url = `${API_ENDPOINT}/login/checkLogin`;
+    try {
+      const infos = await axios({
+        url,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: { token },
+        withCredentials: true
+      });
+
+      dispatch({ type: LOGIN });
+    } catch (e) {}
+  }, []);
+
+  const value = { userInfo, dispatch };
   return (
     <isLoggedContext.Provider value={value}>
       {children}
