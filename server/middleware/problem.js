@@ -1,5 +1,44 @@
 const db = require("../db/index");
 
+//혹시 모르니 남겨 두기
+// const getUserProblems = async (id) => {
+//   try {
+//     const userProblems = await db.query(
+//       "SELECT P.no, P.grade, P.title, PU.solve FROM problems_users as PU JOIN problems as P ON PU.myno = P.no WHERE PU.myid = ? ",
+//       [id]
+//     );
+//     return userProblems[0];
+//   } catch (e) {
+//     return false;
+//   }
+// };
+
+const getUserProblem = async (id, solved) => {
+  const isSolved = solved ? 1 : 0;
+  try {
+    const problem = await db.query(
+      "SELECT P.no, P.grade, P.title, PU.solve FROM problems_users as PU JOIN problems as P ON PU.myno = P.no WHERE PU.myid = ? AND PU.solve=?",
+      [id, isSolved]
+    );
+    return problem[0];
+  } catch (e) {
+    return false;
+  }
+};
+
+const changeProblem = async (id, problemNo, solve) => {
+  const changeSolve = solve === 0 ? 1 : 0;
+
+  try {
+    await db.query(
+      "UPDATE problems_users SET solve= ? WHERE myid =? AND myno=?",
+      [changeSolve, id, problemNo]
+    );
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
 //문제 뽑기
 const getProblem = async (userId) => {
   //id값 받기
@@ -27,4 +66,6 @@ const getProblem = async (userId) => {
 
 module.exports = {
   getProblem,
+  getUserProblem,
+  changeProblem,
 };

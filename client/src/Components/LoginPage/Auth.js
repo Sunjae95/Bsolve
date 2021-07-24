@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Redirect } from 'react-router';
 import { API_ENDPOINT } from 'Utility/config';
 import axios from 'axios';
-import { isLoggedContext } from '../../Context';
+import { userContext } from '../../Context';
 import { LOGIN, LOGOUT, LOADING } from '../../Context/actionType';
 
 function Auth() {
   //context API 도입중... 여기서부터 시작
-  const { userInfo, dispatch } = useContext(isLoggedContext);
+  const { userInfo, dispatch } = useContext(userContext);
   const [isLodding, setIsLodding] = useState(true);
 
   useEffect(async () => {

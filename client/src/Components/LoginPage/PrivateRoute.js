@@ -1,27 +1,15 @@
-import React, { useContext, useEffect } from 'react';
-import { API_ENDPOINT } from '../../utils/config';
+import React, { useContext } from 'react';
 import { Redirect, Route } from 'react-router';
-import { isLoggedContext } from '../../Context';
-import { LOGIN, LOGOUT } from '../../Context/actionType';
-import axios from 'axios';
+import { userContext } from '../../Context';
 
 function PrivateRoute({ component: Component, ...rest }) {
-  const { userInfo, dispatch } = useContext(isLoggedContext);
-  // useEffect(() => {
+  const { userInfo, dispatch } = useContext(userContext);
 
-  // }, [userInfo.isLogged]);
-  //로그인 유무에 따른 조건부 렌더링
   return (
     <Route
       {...rest}
-      render={
-        props =>
-          userInfo.isLogged ? (
-            <Component {...props} />
-          ) : (
-            <Redirect to="/login" />
-          )
-        // isLogged.isLogged ? <Component {...props} /> : <Redirect to="/login" />
+      render={props =>
+        userInfo.isLogged ? <Component {...props} /> : <Redirect to="/login" />
       }
     />
   );

@@ -1,2 +1,8 @@
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
+export const PROBLEMS = 'PROBLEMS';
+export const UNSOLVEDPROBLEM = 'UNSOLVEDPROBLEM';
+export const SOLVEDPROBLEM = 'SOLVEDPROBLEM';
+export const CHANGETOUNSOLVED = 'CHANGETOUNSOLVED';
+export const CHANGETOSOLVED = 'CHANGETOSOLVED';
+

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-function ModifyButton({ problem, changeProblem }) {
+function ModifyButton({ problem, changeProblem, setIsLodding }) {
   return (
     <div>
-      <button onClick={() => changeProblem(problem)}>옮기기</button>
+      <button onClick={() => changeProblem(problem, setIsLodding)}>
+        옮기기
+      </button>
     </div>
   );
 }
@@ -18,6 +20,10 @@ function DeleteButton({ no, removeProblem }) {
 }
 
 function SelectedProblem({ problem, removeProblem, changeProblem }) {
+  const [isLodding, setIsLodding] = useState(false);
+
+  if (isLodding) return <div>로딩중..</div>;
+
   return (
     <div>
       <div>
@@ -25,7 +31,11 @@ function SelectedProblem({ problem, removeProblem, changeProblem }) {
         {problem.grade}
         {problem.title}
       </div>
-      <ModifyButton problem={problem} changeProblem={changeProblem} />
+      <ModifyButton
+        problem={problem}
+        setIsLodding={setIsLodding}
+        changeProblem={changeProblem}
+      />
       <DeleteButton no={problem.no} removeProblem={removeProblem} />
     </div>
   );

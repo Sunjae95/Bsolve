@@ -2,18 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './SelectionPageHead.css';
 
-function SelectionPageHead({ pickSolvedProblems, pickUnsolvedProblems }) {
+function SelectionPageHead({
+  pickSolvedProblems,
+  pickUnsolvedProblems,
+  chageButton
+}) {
   return (
     <div className="SelectionPageHeadContainer">
       <button
         className="profile-modify button-style"
-        onClick={pickUnsolvedProblems}
+        onClick={() => chageButton(false)}
       >
         풀지 못한 문제
       </button>
       <button
         className="profile-modify button-style"
-        onClick={pickSolvedProblems}
+        onClick={() => chageButton(true)}
       >
         완료한 문제
       </button>
@@ -23,7 +27,8 @@ function SelectionPageHead({ pickSolvedProblems, pickUnsolvedProblems }) {
 
 SelectionPageHead.prototype = {
   pickSolvedProblems: PropTypes.func,
-  pickUnsolvedProblems: PropTypes.func
+  pickUnsolvedProblems: PropTypes.func,
+  chageButton: PropTypes.func
 };
 
 export default SelectionPageHead;

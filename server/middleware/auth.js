@@ -62,19 +62,6 @@ const getJWT = async (id) => {
   return jwtToken;
 };
 
-const getUserProblems = async (token) => {
-  try {
-    const id = await checkUser(token);
-    const userProblems = await db.query(
-      "SELECT P.no, P.grade, P.title, PU.solve FROM problems_users as PU JOIN problems as P ON PU.myno = P.no WHERE PU.myid = ? ",
-      [id]
-    );
-    return userProblems[0];
-  } catch (e) {
-    return false;
-  }
-};
-
 //jwt토큰 인증하고 id를 통해 현재 유저 정보 불러오기(id, nickname)
 const curUser = async (token, password) => {
   try {
@@ -119,7 +106,6 @@ module.exports = {
   getJWT,
   checkUser,
   curUser,
-  getUserProblems,
   getAccessTokenFromDB,
   modifyNickname,
 };
