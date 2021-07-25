@@ -1,33 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { API_ENDPOINT } from 'Utility/config';
-import { requestPOST } from 'Api/index';
-
+import { postOptions } from 'Utility/axiosOptions';
+import { LOGOUT } from 'UserContext/actionType';
+import { userContext } from 'UserContext/index';
 import Modal from '../Modal/Modal';
 import Profile from './Profile/Profile';
+import axios from 'axios';
+
 function Mypage() {
   const [profile, setProfile] = useState(false);
   const [modal, setModal] = useState(false);
   const [modalCheck, setModalCheck] = useState(true);
+  const { dispatch } = useContext(userContext);
 
-  //유저 데이터 불러오기
   useEffect(async () => {
-    try {
-      //성공시 유저 정보 profile에 저장
-      const data = await requestPOST(`${API_ENDPOINT}/user`, {
-        user: localStorage.getItem('user')
-      });
-      const user = await data.json();
-      const { id, nickname, age, gender } = user;
+    const url = `${API_ENDPOINT}/user`;
+    const token = localStorage.getItem('token');
 
-      setProfile({ id, nickname, age, gender });
+    try {
+      const user = await axios.post(url, { token }, postOptions);
+
+      setProfile(user.data);
     } catch (e) {
-      //다시 로그인페이지 보여주기 (미구현)
       setProfile(false);
+      dispatch({ type: LOGOUT });
     }
   }, []);
 
-  //수정될때 상태 바꿔주기
-  //닉네임, 나이에 따라 변형
   const onChange = e => {
     setProfile({
       ...profile,
@@ -35,23 +34,21 @@ function Mypage() {
         e.target.name === 'age' ? parseInt(e.target.value) : e.target.value
     });
   };
-  //성별체크하기
+
   const checkedBox = () => {
     setProfile({ ...profile, gender: !profile.gender });
   };
 
-  //데이터 수정하기
-  const onSave = () => {
-    requestPOST('http://localhost:5000/api/user/modify', {
-      id: profile.id,
-      nickname: profile.nickname,
-      age: profile.age,
-      gender: profile.gender
-    }).catch(e => console.log(e));
-    setModal(!modal);
+  const onSave = async () => {
+    const modifyURL = `${API_ENDPOINT}/user/modify`;
+    try {
+      await axios.post(modifyURL, { profile }, postOptions);
+      setModal(!modal);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  //모달창 열고 닫기
   const clickedModify = () => {
     setModal(!modal);
     setModalCheck(true);
@@ -66,7 +63,8 @@ function Mypage() {
   const onLogout = () => {
     setProfile(false);
     setModal(!modal);
-    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    dispatch({ type: LOGOUT });
   };
   //로그아웃 칸 누를때 모달창 띄우기
   const clickedLogout = () => {
@@ -115,6 +113,5 @@ function Mypage() {
     </>
   );
 }
-
 
 export default Mypage;

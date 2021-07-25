@@ -1,6 +1,5 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import PrivateRoute from './Components/LoginPage/PrivateRoute';
 import NavBar from './Components/NavBar/NavBar';
 import LoginPage from './Components/LoginPage/LoginPage';
 import Auth from './Components/LoginPage/Auth';
@@ -9,6 +8,7 @@ import ProblemPage from './Components/ProblemPage/ProblemPage';
 import RankingPage from './Components/RankPage/RankingPage';
 import HomePage from './Components/HomePage/HomePage';
 import './App.css';
+import PrivateRoute from './Components/LoginPage/PrivateRoute';
 
 function App() {
   return (

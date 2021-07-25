@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { API_ENDPOINT } from 'Utility/config';
-import { requestGET } from 'Api/index';
+import axios from 'axios';
 import './login.css';
 
 function LoginPage() {
-  const [url, setUrl] = useState(null);
+  const [url, setURL] = useState(null);
 
   useEffect(async () => {
-    const loginURL = await requestGET(`${API_ENDPOINT}/login`);
-    setUrl(loginURL.url);
+    try {
+      const response = await axios.get(`${API_ENDPOINT}/login`);
+
+      setURL(response.data.url);
+    } catch (e) {
+      setURL(false);
+    }
   }, []);
 
-  const onClick = async () => {
+  const onClick = () => {
     location.href = url;
   };
+
+  if (url == null) return <div>로딩중..</div>;
+  if (!url) return <div>오류!!</div>;
 
   return (
     <div className="LoginContent">

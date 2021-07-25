@@ -5,10 +5,6 @@ const logger = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
 
-const loginRouter = require("./routes/login");
-const userRouter = require("./routes/user");
-const problemRouter = require("./routes/problem");
-
 const app = express();
 
 app.use(logger("dev"));
@@ -22,6 +18,10 @@ app.use(
     credentials: true,
   })
 );
+
+const loginRouter = require("./routes/login");
+const userRouter = require("./routes/user");
+const problemRouter = require("./routes/problem");
 
 app.use("/api/login", loginRouter);
 app.use("/api/user", userRouter);

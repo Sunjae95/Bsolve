@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, Route, Switch } from 'react-router-dom';
-import SelectionPage from './SelectionPage';
-import CreationPage from './CreateProblem/CreationPage';
+import './ProblemPage.css';
+import SelectionPage from './SelectionProblem/SelectionPage';
+import PeekPage from './PeekProblem/PeekPage';
 
 function ProblemPage() {
   return (
@@ -14,10 +15,10 @@ function ProblemPage() {
           <li>문제조회</li>
         </Link>
       </ul>
-      <div className="PageContent">
+      <div className="PageContent problem">
         <Switch>
           <Route path="/problem/select" component={SelectionPage} />
-          <Route exact path="/problem" component={CreationPage} />
+          <Route exact path="/problem" component={PeekPage} />
         </Switch>
       </div>
     </>

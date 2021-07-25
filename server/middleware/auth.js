@@ -3,7 +3,7 @@ const db = require("../db/index");
 const jwt = require("jsonwebtoken");
 
 const getAccessToken = async (url, bodyData) => {
-  const queryStringBody = Object.keys(bodyData)
+  const body = Object.keys(bodyData)
     .map((k) => encodeURIComponent(k) + "=" + encodeURI(bodyData[k]))
     .join("&");
 
@@ -12,74 +12,68 @@ const getAccessToken = async (url, bodyData) => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
     },
-    body: queryStringBody,
+    body,
   };
-
   const getData = await fetch(url, requestOptions);
-  const postData = await getData.json();
+  const accessToken = await getData.json();
 
-  return postData;
+  return accessToken;
 };
-//accessToken을 이용하여 user정보를 가져옴
-//이 프로젝트에서는 id만 필요하기에 id만 받아 올것..!
-const getIdFromKakao = async (accessToken) => {
+
+//accessToken을 활용해 ID를 받아옴
+const getKakaoId = async (accessToken) => {
   const data = await fetch("https://kapi.kakao.com/v2/user/me", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${accessToken.access_token}`,
     },
   });
-  const user = await data.json();
-  return user.id;
+  const kakaoUser = await data.json();
+
+  return kakaoUser.id;
 };
 
-//kakao에서 id 받기
-//DB에서 id 있는지 확인후 있으면 id와 함께jwt토큰만들기 / 없으면 db생성후 jwt토큰만들기
-//jwt토큰 프론트로 넘겨주기
-
-const getJWT = async (id, access_token) => {
-  saveUser(id, access_token);
-  const jwtToken = jwt.sign(
-    {
-      id: id,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60,
-    },
-    process.env.JWT_SECRET
-  );
-  return jwtToken;
-};
-
-//id입력후 아이디가 있다면 accessToken만 저장 없다면 id와 accessToken저장
-const saveUser = async (id, access_token) => {
+//ID가 없다면 DB에 ID추가
+const saveUser = async (id) => {
   const checkUser = await db.query("SELECT id FROM users WHERE id = ?", [id]);
 
   if (checkUser[0].length === 0) {
-    db.query("INSERT INTO users(id, access_token) VALUES (?, ?)", [
-      id,
-      access_token.access_token,
-    ])
-      .then(console.log("로그인삽입성공"))
-      .catch((err) => console.log("로그인삽입에러:", err));
-  } else {
-    db.query("UPDATE users SET access_token = ?  WHERE id = ?", [
-      access_token.access_token,
-      id,
-    ])
-      .then(console.log("로그인수정성공"))
-      .catch((err) => console.log("로그인수정에러:", err));
+    db.query("INSERT INTO users(id) VALUES (?)", [id]);
   }
 };
 
-//jwt토큰 인증하고 id를 통해 현재 유저 정보 불러오기(id, nickname)
-const curUser = async (token) => {
-  const jwtAuth = await jwt.verify(token, process.env.JWT_SECRET);
-  const id = jwtAuth.id;
-  const response = await db.query(
-    "SELECT id, nickname, age, gender FROM users WHERE id = ?",
-    [id]
-  );
+const checkUser = (token) => {
+  const isChecked = jwt.verify(token, process.env.JWT_SECRET);
+  if (isChecked) return isChecked.id;
+  return false;
+};
 
-  return response[0][0];
+//JWT토큰 생성
+const getJWT = async (id) => {
+  const payload = {
+    id: id,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60,
+  };
+
+  saveUser(id);
+
+  const jwtToken = jwt.sign(payload, process.env.JWT_SECRET);
+
+  return jwtToken;
+};
+
+//jwt토큰 인증하고 id를 통해 현재 유저 정보 불러오기(id, nickname)
+const getUserInfo = async (id) => {
+  try {
+    const response = await db.query(
+      "SELECT id, nickname, age, gender FROM users WHERE id = ?",
+      [id]
+    );
+
+    return response[0][0];
+  } catch (e) {
+    console.log("토큰인증실패", e);
+  }
 };
 
 const getAccessTokenFromDB = async (id) => {
@@ -91,10 +85,6 @@ const getAccessTokenFromDB = async (id) => {
 };
 
 const modifyNickname = async (id, nickname, age, gender) => {
-  //  데이터 조회
-  // db.query('UPDATE users SET nickname = ? WHERE id =?', [nickname, id])
-  //   .then(console.log('user수정성공'))
-  //   .catch(err=> console.log('user 수정실패'));
   try {
     const res = await db.query(
       "UPDATE users SET nickname = ?, age= ?, gender = ?  WHERE id =?",
@@ -102,17 +92,17 @@ const modifyNickname = async (id, nickname, age, gender) => {
     );
     return res;
   } catch (e) {
-   
     return false;
   }
 };
 
 module.exports = {
   getAccessToken,
-  getIdFromKakao,
+  getKakaoId,
   saveUser,
   getJWT,
-  curUser,
+  checkUser,
+  getUserInfo,
   getAccessTokenFromDB,
   modifyNickname,
 };
