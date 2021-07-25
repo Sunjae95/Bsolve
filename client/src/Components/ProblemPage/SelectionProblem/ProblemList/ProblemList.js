@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-function ModifyButton({ problem, changeProblem, setIsLodding }) {
+function MoveButton({ problem, moveProblem, setIsLodding }) {
   return (
     <div>
-      <button onClick={() => changeProblem(problem, setIsLodding)}>
-        옮기기
-      </button>
+      <button onClick={() => moveProblem(problem, setIsLodding)}>옮기기</button>
     </div>
   );
 }
@@ -19,7 +17,7 @@ function DeleteButton({ no, removeProblem }) {
   );
 }
 
-function SelectedProblem({ problem, removeProblem, changeProblem }) {
+function Problem({ problem, removeProblem, moveProblem }) {
   const [isLodding, setIsLodding] = useState(false);
 
   if (isLodding) return <div>로딩중..</div>;
@@ -31,31 +29,27 @@ function SelectedProblem({ problem, removeProblem, changeProblem }) {
         {problem.grade}
         {problem.title}
       </div>
-      <ModifyButton
+      <MoveButton
         problem={problem}
         setIsLodding={setIsLodding}
-        changeProblem={changeProblem}
+        moveProblem={moveProblem}
       />
       <DeleteButton no={problem.no} removeProblem={removeProblem} />
     </div>
   );
 }
 
-function SelectedProblemList({
-  selectedProblems: problems,
-  removeProblem,
-  changeProblem
-}) {
+function ProblemList({ problems, removeProblem, moveProblem }) {
   return (
     <div className="SelectProblemListContainer">
       {problems &&
         problems.map((problem, index) => {
           return (
-            <SelectedProblem
+            <Problem
               key={index}
               problem={problem}
               removeProblem={removeProblem}
-              changeProblem={changeProblem}
+              moveProblem={moveProblem}
             />
           );
         })}
@@ -63,12 +57,25 @@ function SelectedProblemList({
   );
 }
 
-SelectedProblemList.propTypes = {
-  selectedProblems: PropTypes.oneOfType([
+ProblemList.propTypes = {
+  problems: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.oneOf([null]).isRequired
   ]),
   removeProblem: PropTypes.func,
-  changeProblem: PropTypes.func
+  moveProblem: PropTypes.func
 };
-export default SelectedProblemList;
+
+Problem.propTypes = {
+  problem: PropTypes.object,
+  removeProblem: PropTypes.func,
+  moveProblem: PropTypes.func
+};
+
+MoveButton.propTypes = {
+  problem: PropTypes.object,
+  moveProblem: PropTypes.func,
+  setIsLodding: PropTypes.func
+};
+
+export default ProblemList;

@@ -1,6 +1,6 @@
 import React from 'react';
 import Proptypes from 'prop-types';
-function CreationPageHead({ getProblems }) {
+function PeekPageHeader({ getProblems }) {
   return (
     <div className="problemPageHead">
       <button className="profile-modify button-style" onClick={getProblems}>
@@ -10,7 +10,7 @@ function CreationPageHead({ getProblems }) {
   );
 }
 
-CreationPageHead.Proptypes = {
+PeekPageHeader.Proptypes = {
   getProblems: Proptypes.func
 };
-export default CreationPageHead;
+export default PeekPageHeader;

@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useReducer } from 'react';
+import { postOptions } from '../utils/axiosOptions';
 import { API_ENDPOINT } from '../utils/config';
 import {
   LOGIN,
   LOGOUT,
-  CHANGETOUNSOLVED,
-  CHANGETOSOLVED,
-  PROBLEMS,
-  SOLVEDPROBLEM,
-  UNSOLVEDPROBLEM
+  GET_UNSOLVED_PROBLEM,
+  GET_SOLVED_PROBLEM,
+  CHANGE_TO_UNSOLVED_PROBLEM,
+  CHANGE_TO_SOLVED_PROBLEM
 } from './actionType';
 
 const initailState = {
@@ -25,16 +25,13 @@ const reducer = (state, action) => {
       return { ...state, isLogged: true };
     case LOGOUT:
       return { ...state, isLogged: false };
-    case PROBLEMS: {
-      return { ...state, problems: action.problems };
-    }
-    case UNSOLVEDPROBLEM: {
+    case GET_UNSOLVED_PROBLEM: {
       return { ...state, unsolvedProblem: action.unsolvedProblem };
     }
-    case SOLVEDPROBLEM: {
+    case GET_SOLVED_PROBLEM: {
       return { ...state, solvedProblem: action.solvedProblem };
     }
-    case CHANGETOUNSOLVED: {
+    case CHANGE_TO_UNSOLVED_PROBLEM: {
       const problemNo = action.problem.no;
       const arrLen = state.solvedProblem.filter(
         problem => problem.no !== problemNo
@@ -62,7 +59,7 @@ const reducer = (state, action) => {
         solvedProblem
       };
     }
-    case CHANGETOSOLVED: {
+    case CHANGE_TO_SOLVED_PROBLEM: {
       const problemNo = action.problem.no;
       const arrLen = state.unsolvedProblem.filter(
         problem => problem.no !== problemNo
@@ -99,18 +96,13 @@ const Provider = ({ children }) => {
   const token = localStorage.getItem('token');
 
   useEffect(async () => {
+    if (token == null) return;
     const url = `${API_ENDPOINT}/login/checkLogin`;
-    try {
-      const infos = await axios({
-        url,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        data: { token },
-        withCredentials: true
-      });
 
+    try {
+      const checkUser = await axios.post(url, { token }, postOptions);
+      if (!checkUser) return;
+      
       dispatch({ type: LOGIN });
     } catch (e) {}
   }, []);

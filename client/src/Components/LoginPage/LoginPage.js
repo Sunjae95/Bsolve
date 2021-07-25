@@ -6,12 +6,14 @@ import './login.css';
 function LoginPage() {
   const [url, setURL] = useState(null);
 
-  useEffect(() => {
-    axios
-      .get(`${API_ENDPOINT}/login`)
-      .then(res => res.data.url)
-      .then(url => setURL(url))
-      .catch(e => setURL('fail'));
+  useEffect(async () => {
+    try {
+      const response = await axios.get(`${API_ENDPOINT}/login`);
+
+      setURL(response.data.url);
+    } catch (e) {
+      setURL(false);
+    }
   }, []);
 
   const onClick = () => {
@@ -19,7 +21,7 @@ function LoginPage() {
   };
 
   if (url == null) return <div>로딩중..</div>;
-  if (url === 'fail') return <div>오류!!</div>;
+  if (!url) return <div>오류!!</div>;
 
   return (
     <div className="LoginContent">

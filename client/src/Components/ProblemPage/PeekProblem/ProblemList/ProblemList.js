@@ -36,11 +36,11 @@ function Problem({ no, grade, title }) {
   );
 }
 
-function ProblemList({ problems }) {
+function ProblemList({ problem }) {
   return (
     <div className="problemList">
-      {problems &&
-        [...problems].map((problem, index) => {
+      {problem &&
+        [...problem].map((problem, index) => {
           return (
             <Problem
               key={index}
@@ -61,6 +61,6 @@ Problem.propTypes = {
 };
 
 ProblemList.propTypes = {
-  problems: PropTypes.array
+  problem: PropTypes.array
 };
 export default ProblemList;

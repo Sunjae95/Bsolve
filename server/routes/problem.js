@@ -35,18 +35,17 @@ router.post("/change", async (req, res) => {
   }
 });
 
-// router.post("/createProblem", async (req, res) => {
-//   try {
-//     const isVerify = checkUser(req.body.user, process.env.JWT_SECRET);
-//     if (!isVerify) return res.status(500).json({ isVerify: false });
+router.post("/createProblem", async (req, res) => {
+  try {
+    const id = checkUser(req.body.token);
+    if (!id) return res.status(500).json({ isVerify: false });
 
-//     const userId = isVerify;
-//     const data = await getProblem(userId);
+    const data = await getProblem(id);
 
-//     return res.status(200).send(data);
-//   } catch (e) {
-//     console.log("getProblem Error:", e);
-//   }
-// });
+    return res.status(200).send(data);
+  } catch (e) {
+    console.log("getProblem Error:", e);
+  }
+});
 
 module.exports = router;

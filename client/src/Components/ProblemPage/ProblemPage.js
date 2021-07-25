@@ -2,10 +2,9 @@ import React from 'react';
 import { Link, Route, Switch } from 'react-router-dom';
 import './ProblemPage.css';
 import SelectionPage from './SelectionProblem/SelectionPage';
-import CreationPage from './CreateProblem/CreationPage';
+import PeekPage from './PeekProblem/PeekPage';
 
 function ProblemPage() {
-  
   return (
     <>
       <ul className="PageButton">
@@ -19,7 +18,7 @@ function ProblemPage() {
       <div className="PageContent problem">
         <Switch>
           <Route path="/problem/select" component={SelectionPage} />
-          <Route exact path="/problem" component={CreationPage} />
+          <Route exact path="/problem" component={PeekPage} />
         </Switch>
       </div>
     </>

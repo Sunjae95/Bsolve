@@ -5,14 +5,11 @@ const {
   getKakaoId,
   getJWT,
   checkUser,
-  getUserProblems,
 } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
   const url = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.REST_API_KEY}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code`;
-  res.json({
-    url,
-  });
+  res.json({ url });
 });
 
 router.post("/auth", async (req, res) => {

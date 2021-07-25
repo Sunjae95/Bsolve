@@ -63,10 +63,8 @@ const getJWT = async (id) => {
 };
 
 //jwt토큰 인증하고 id를 통해 현재 유저 정보 불러오기(id, nickname)
-const curUser = async (token, password) => {
+const getUserInfo = async (id) => {
   try {
-    const jwtAuth = jwt.verify(token, password);
-    const id = jwtAuth.id;
     const response = await db.query(
       "SELECT id, nickname, age, gender FROM users WHERE id = ?",
       [id]
@@ -75,7 +73,6 @@ const curUser = async (token, password) => {
     return response[0][0];
   } catch (e) {
     console.log("토큰인증실패", e);
-    throw e;
   }
 };
 
@@ -105,7 +102,7 @@ module.exports = {
   saveUser,
   getJWT,
   checkUser,
-  curUser,
+  getUserInfo,
   getAccessTokenFromDB,
   modifyNickname,
 };

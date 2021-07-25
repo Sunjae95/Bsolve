@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Redirect } from 'react-router';
 import { API_ENDPOINT } from 'Utility/config';
+import { postOptions } from 'Utility/axiosOptions';
+import { userContext } from 'UserContext/index';
+import { LOGIN } from 'UserContext/actionType';
 import axios from 'axios';
-import { userContext } from '../../Context';
-import { LOGIN, LOGOUT, LOADING } from '../../Context/actionType';
 
 function Auth() {
-  //context API 도입중... 여기서부터 시작
   const { userInfo, dispatch } = useContext(userContext);
   const [isLodding, setIsLodding] = useState(true);
 
@@ -17,23 +17,16 @@ function Auth() {
     setIsLodding(false);
 
     try {
-      const infos = await axios({
-        url,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        data: JSON.stringify(authCode),
-        withCredentials: true
-      });
+      const infos = await axios.post(url, authCode, postOptions);
 
-      dispatch({ type: LOGIN });
       localStorage.setItem('token', infos.data.token);
+      dispatch({ type: LOGIN });
     } catch (e) {
-      console.log('에러내용', e);
       localStorage.clear();
+      console.log('에러내용', e);
     }
   }, []);
+
   if (isLodding) return <div>로그인중..</div>;
   if (userInfo.isLogged) return <Redirect to="/" />;
   return <div>로그인 실패</div>;

@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Redirect, Route } from 'react-router';
-import { userContext } from '../../Context';
+import { userContext } from 'UserContext/index';
 
 function PrivateRoute({ component: Component, ...rest }) {
-  const { userInfo, dispatch } = useContext(userContext);
+  const { userInfo } = useContext(userContext);
 
   return (
     <Route

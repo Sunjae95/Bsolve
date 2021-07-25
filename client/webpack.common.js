@@ -12,8 +12,8 @@ module.exports = {
   },
   resolve: {
     alias: {
-      Api: path.resolve(__dirname, 'src/api/'),
-      Utility: path.resolve(__dirname, 'src/utils/')
+      Utility: path.resolve(__dirname, 'src/utils/'),
+      UserContext: path.resolve(__dirname, 'src/userContext/')
     }
   },
   module: {

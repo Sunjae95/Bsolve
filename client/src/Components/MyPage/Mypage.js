@@ -1,41 +1,32 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { API_ENDPOINT } from 'Utility/config';
-import { requestPOST } from 'Api/index';
+import { postOptions } from 'Utility/axiosOptions';
+import { LOGOUT } from 'UserContext/actionType';
+import { userContext } from 'UserContext/index';
 import Modal from '../Modal/Modal';
 import Profile from './Profile/Profile';
-import { isLoggedContext } from '../../Context';
-import { LOGOUT } from '../../Context/actionType';
 import axios from 'axios';
 
 function Mypage() {
   const [profile, setProfile] = useState(false);
   const [modal, setModal] = useState(false);
   const [modalCheck, setModalCheck] = useState(true);
-  const { dispatch } = useContext(isLoggedContext);
-  //MyPage 특성상 첫화면은 유저 정보가 있어야된다. 그렇기에 유저 정보를 불러온다.
-  useEffect(async () => {
-    try {
-      const user = await axios({
-        url: `${API_ENDPOINT}/user`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        data: { user: localStorage.getItem('user') },
-        withCredentials: true
-      });
+  const { dispatch } = useContext(userContext);
 
-      const { id, nickname, age, gender } = user.data;
-      setProfile({ id, nickname, age, gender });
+  useEffect(async () => {
+    const url = `${API_ENDPOINT}/user`;
+    const token = localStorage.getItem('token');
+
+    try {
+      const user = await axios.post(url, { token }, postOptions);
+
+      setProfile(user.data);
     } catch (e) {
-      //실패시 LOGOUT으로 타입을 바꿔줌
       setProfile(false);
       dispatch({ type: LOGOUT });
     }
   }, []);
 
-  //수정될때 상태 바꿔주기
-  //닉네임, 나이에 따라 변형
   const onChange = e => {
     setProfile({
       ...profile,
@@ -43,34 +34,21 @@ function Mypage() {
         e.target.name === 'age' ? parseInt(e.target.value) : e.target.value
     });
   };
-  //성별체크하기
+
   const checkedBox = () => {
     setProfile({ ...profile, gender: !profile.gender });
   };
 
-  //데이터 수정하기
-  const onSave = () => {
-    const modifyData = {
-      id: profile.id,
-      nickname: profile.nickname,
-      age: profile.age,
-      gender: profile.gender
-    };
-
-    axios({
-      url: `${API_ENDPOINT}/user/modify`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: modifyData,
-      withCredentials: true
-    });
-
-    setModal(!modal);
+  const onSave = async () => {
+    const modifyURL = `${API_ENDPOINT}/user/modify`;
+    try {
+      await axios.post(modifyURL, { profile }, postOptions);
+      setModal(!modal);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  //모달창 열고 닫기
   const clickedModify = () => {
     setModal(!modal);
     setModalCheck(true);
@@ -85,7 +63,7 @@ function Mypage() {
   const onLogout = () => {
     setProfile(false);
     setModal(!modal);
-    localStorage.removeItem('user');
+    localStorage.removeItem('token');
     dispatch({ type: LOGOUT });
   };
   //로그아웃 칸 누를때 모달창 띄우기
